@@ -12,13 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface CreateCampaignDialogProps {
@@ -27,21 +20,12 @@ interface CreateCampaignDialogProps {
   clientId: string;
 }
 
-const platforms = [
-  { value: "google-pmax", label: "Google Performance Max" },
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "linkedin", label: "LinkedIn" },
-  { value: "youtube", label: "YouTube" },
-];
-
 export const CreateCampaignDialog = ({
   open,
   onOpenChange,
   clientId,
 }: CreateCampaignDialogProps) => {
   const [campaignName, setCampaignName] = useState("");
-  const [platform, setPlatform] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -51,7 +35,6 @@ export const CreateCampaignDialog = ({
         .from("campaigns")
         .insert({
           name: campaignName,
-          platform,
           client_id: clientId,
         })
         .select()
@@ -65,9 +48,8 @@ export const CreateCampaignDialog = ({
       toast.success("Campaign created successfully");
       onOpenChange(false);
       setCampaignName("");
-      setPlatform("");
-      // Navigate to ad creation flow with campaign context
-      navigate(`/create/${campaign.platform}/select-format?campaignId=${campaign.id}`);
+      // Navigate to campaign builder page
+      navigate(`/campaign/${campaign.id}/builder`);
     },
     onError: (error) => {
       toast.error("Failed to create campaign");
@@ -77,8 +59,8 @@ export const CreateCampaignDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!campaignName.trim() || !platform) {
-      toast.error("Please fill in all fields");
+    if (!campaignName.trim()) {
+      toast.error("Please enter a campaign name");
       return;
     }
     createCampaignMutation.mutate();
@@ -104,22 +86,6 @@ export const CreateCampaignDialog = ({
               onChange={(e) => setCampaignName(e.target.value)}
               required
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="platform">Platform *</Label>
-            <Select value={platform} onValueChange={setPlatform} required>
-              <SelectTrigger id="platform">
-                <SelectValue placeholder="Select platform" />
-              </SelectTrigger>
-              <SelectContent>
-                {platforms.map((p) => (
-                  <SelectItem key={p.value} value={p.value}>
-                    {p.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="flex gap-3 justify-end pt-4">
