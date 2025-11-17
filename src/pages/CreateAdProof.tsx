@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
+import Navigation from "@/components/Navigation";
 
 const CreateAdProof = () => {
   const navigate = useNavigate();
@@ -58,19 +59,19 @@ const CreateAdProof = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-foreground">Create New Ad Proof</h1>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-4xl space-y-8">
+      <main className="mx-auto px-6 py-8">
+        <div className="mb-6">
+          <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-3xl font-bold text-foreground">Create New Ad Proof</h1>
+          <p className="text-muted-foreground">Select platform and format for your ad</p>
+        </div>
+
+        <div className="mx-auto max-w-5xl space-y-8">
           {/* Step 1: Select Platform */}
           <div>
             <h2 className="mb-4 text-xl font-semibold">Step 1: Select Ad Channel</h2>
@@ -80,15 +81,15 @@ const CreateAdProof = () => {
                 return (
                   <Card
                     key={platform.id}
-                    className={`cursor-pointer transition-all hover-scale ${
-                      selectedPlatform === platform.id ? "border-primary ring-2 ring-primary" : ""
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      selectedPlatform === platform.id ? "ring-2 ring-primary" : ""
                     }`}
                     onClick={() => handlePlatformSelect(platform.id)}
                   >
                     <CardHeader>
                       <div className="flex items-center gap-3">
                         <Icon className={`h-8 w-8 ${platform.color}`} />
-                        <CardTitle>{platform.name}</CardTitle>
+                        <CardTitle className="text-lg">{platform.name}</CardTitle>
                       </div>
                     </CardHeader>
                   </Card>
@@ -105,13 +106,13 @@ const CreateAdProof = () => {
                 {formatsByPlatform[selectedPlatform]?.map((format) => (
                   <Card
                     key={format.id}
-                    className={`cursor-pointer transition-all hover-scale ${
-                      selectedFormat === format.id ? "border-primary ring-2 ring-primary" : ""
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      selectedFormat === format.id ? "ring-2 ring-primary" : ""
                     }`}
                     onClick={() => handleFormatSelect(format.id)}
                   >
                     <CardHeader>
-                      <CardTitle>{format.name}</CardTitle>
+                      <CardTitle className="text-lg">{format.name}</CardTitle>
                       <CardDescription>{format.description}</CardDescription>
                     </CardHeader>
                   </Card>
@@ -123,7 +124,11 @@ const CreateAdProof = () => {
           {/* Continue Button */}
           {selectedPlatform && selectedFormat && (
             <div className="flex justify-end animate-fade-in">
-              <Button size="lg" onClick={handleContinue}>
+              <Button 
+                size="lg" 
+                onClick={handleContinue}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
                 Continue
               </Button>
             </div>
