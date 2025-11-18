@@ -43,7 +43,6 @@ const CampaignDetail = () => {
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPlatform, setEditPlatform] = useState("");
   const [selectedAdProofShareToken, setSelectedAdProofShareToken] = useState<string>("");
@@ -139,33 +138,6 @@ const CampaignDetail = () => {
     },
   });
 
-  const generateShareLinkMutation = useMutation({
-    mutationFn: async () => {
-      if (campaign?.share_token) {
-        return campaign.share_token;
-      }
-
-      const { data, error } = await supabase.rpc("generate_campaign_share_token");
-      if (error) throw error;
-
-      const { error: updateError } = await supabase
-        .from("campaigns")
-        .update({ share_token: data })
-        .eq("id", campaignId);
-
-      if (updateError) throw updateError;
-
-      await queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
-      return data;
-    },
-    onSuccess: () => {
-      setShareOpen(true);
-    },
-    onError: () => {
-      toast.error("Failed to generate share link");
-    },
-  });
-
   const handleEdit = () => {
     if (campaign) {
       setEditName(campaign.name);
@@ -180,15 +152,6 @@ const CampaignDetail = () => {
       return;
     }
     updateMutation.mutate();
-  };
-
-  const shareUrl = campaign?.share_token
-    ? `${window.location.origin}/c/${campaign.share_token}`
-    : "";
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard");
   };
 
   if (isLoading) {
@@ -249,14 +212,6 @@ const CampaignDetail = () => {
               <Button variant="outline" onClick={handleEdit}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Campaign
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => generateShareLinkMutation.mutate()}
-                disabled={generateShareLinkMutation.isPending}
-              >
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
               </Button>
               <Button
                 variant="outline"
@@ -401,27 +356,6 @@ const CampaignDetail = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete Campaign"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Share Dialog */}
-      <AlertDialog open={shareOpen} onOpenChange={setShareOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Share Campaign</AlertDialogTitle>
-            <AlertDialogDescription>
-              Share this link with your client to view all ads in this campaign and provide feedback.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4">
-            <Input value={shareUrl} readOnly className="font-mono text-sm" />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCopyLink}>
-              Copy Link
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
