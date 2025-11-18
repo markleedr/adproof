@@ -276,9 +276,14 @@ const AdProofView = () => {
             <Button
               variant="outline"
               onClick={() => {
+                const campaignId = adProof?.campaign_id;
                 setHasUnsavedChanges(false);
                 setShowUnsavedDialog(false);
-                navigate(-1);
+                if (campaignId) {
+                  navigate(`/campaign/${campaignId}`);
+                } else {
+                  navigate('/dashboard');
+                }
               }}
             >
               Leave Without Saving
@@ -286,9 +291,14 @@ const AdProofView = () => {
             <AlertDialogAction
               onClick={async () => {
                 await saveMutation.mutateAsync();
+                const campaignId = adProof?.campaign_id;
                 setHasUnsavedChanges(false);
                 setShowUnsavedDialog(false);
-                navigate(-1);
+                if (campaignId) {
+                  navigate(`/campaign/${campaignId}`);
+                } else {
+                  navigate('/dashboard');
+                }
               }}
             >
               Save & Leave
@@ -300,10 +310,13 @@ const AdProofView = () => {
       <header className="border-b bg-background">
         <div className="mx-auto max-w-7xl px-6 py-6 flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => {
+            const campaignId = adProof?.campaign_id;
             if (hasUnsavedChanges) {
               setShowUnsavedDialog(true);
+            } else if (campaignId) {
+              navigate(`/campaign/${campaignId}`);
             } else {
-              navigate(-1);
+              navigate('/dashboard');
             }
           }}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
