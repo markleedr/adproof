@@ -63,59 +63,53 @@ export const FacebookCarouselPreview = ({
         </div>
       )}
 
-      {/* Carousel Card */}
-      <div className="relative group">
-        {card.imageUrl ? (
-          <img src={card.imageUrl} alt={card.headline} className="w-full aspect-square object-cover" />
-        ) : (
-          <div className="w-full aspect-square bg-muted flex items-center justify-center">
-            <span className="text-muted-foreground">Card {currentCard + 1} Image</span>
-          </div>
-        )}
-
-        {/* Navigation Buttons */}
-        {currentCard > 0 && (
-          <button
-            onClick={prevCard}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-800" />
-          </button>
-        )}
-        {currentCard < cards.length - 1 && (
-          <button
-            onClick={nextCard}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-800" />
-          </button>
-        )}
-
-        {/* Card Indicators */}
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-          {cards.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-1.5 rounded-full transition-all ${
-                idx === currentCard ? "w-6 bg-white" : "w-1.5 bg-white/50"
+      {/* Carousel Container - Side by side cards */}
+      <div className="relative bg-background">
+        <div className="flex gap-2 p-2 overflow-x-auto scrollbar-hide">
+          {cards.map((cardItem, idx) => (
+            <div 
+              key={idx} 
+              className={`flex-shrink-0 bg-background border border-border rounded-lg overflow-hidden cursor-pointer ${
+                idx === 0 ? 'w-[280px]' : 'w-[180px]'
               }`}
-            />
+              onClick={() => setCurrentCard(idx)}
+            >
+              {/* Card Image */}
+              {cardItem.imageUrl ? (
+                <img 
+                  src={cardItem.imageUrl} 
+                  alt={cardItem.headline} 
+                  className="w-full aspect-square object-cover" 
+                />
+              ) : (
+                <div className="w-full aspect-square bg-muted flex items-center justify-center">
+                  <span className="text-xs text-muted-foreground">Card {idx + 1}</span>
+                </div>
+              )}
+              
+              {/* Card Info */}
+              <div className="p-2 bg-muted/20">
+                <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">
+                  {cardItem.headline || `Card ${idx + 1} Headline`}
+                </h3>
+                {idx === 0 && cardItem.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                    {cardItem.description}
+                  </p>
+                )}
+                {cardItem.callToAction && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-xs h-7 bg-background hover:bg-accent mt-2"
+                  >
+                    {cardItem.callToAction}
+                  </Button>
+                )}
+              </div>
+            </div>
           ))}
         </div>
-      </div>
-
-      {/* Card Content Below Image */}
-      <div className="bg-muted/30 px-3 pt-3 pb-2 border-t border-border">
-        <div className="text-xs text-muted-foreground mb-2">www.website.com</div>
-        {card.headline && <div className="font-semibold text-sm text-foreground mb-1">{card.headline}</div>}
-        {card.description && (
-          <p className="text-xs text-muted-foreground mb-3">{card.description}</p>
-        )}
-        {card.callToAction && (
-          <Button variant="outline" size="sm" className="w-full border-border hover:bg-accent">
-            {card.callToAction}
-          </Button>
-        )}
       </div>
 
       {/* Engagement Bar */}
