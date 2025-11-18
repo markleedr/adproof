@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThumbsUp, MessageSquare, Loader2 } from "lucide-react";
 import { FacebookSingleImagePreview } from "@/components/ad-previews/FacebookSingleImagePreview";
 import { FacebookStoryPreview } from "@/components/ad-previews/FacebookStoryPreview";
@@ -18,6 +20,7 @@ import { LinkedInCarouselPreview } from "@/components/ad-previews/LinkedInCarous
 
 const ProofView = () => {
   const { shareToken } = useParams();
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
 
   const { data: adProofData, isLoading } = useQuery({
     queryKey: ["adProof", shareToken],
@@ -30,18 +33,27 @@ const ProofView = () => {
 
       if (proofError) throw proofError;
 
-      const { data: version, error: versionError } = await supabase
+      // Fetch all versions
+      const { data: versions, error: versionsError } = await supabase
         .from("ad_proof_versions")
         .select("*")
         .eq("ad_proof_id", adProof.id)
-        .eq("version_number", adProof.current_version)
-        .single();
+        .order("version_number", { ascending: false });
 
-      if (versionError) throw versionError;
+      if (versionsError) throw versionsError;
 
-      return { adProof, version };
+      return { adProof, versions };
     },
   });
+
+  // Set initial selected version to current version
+  if (adProofData && selectedVersion === null) {
+    setSelectedVersion(adProofData.adProof.current_version);
+  }
+
+  const currentVersion = adProofData?.versions?.find(
+    v => v.version_number === selectedVersion
+  );
 
   if (isLoading) {
     return (
@@ -51,7 +63,7 @@ const ProofView = () => {
     );
   }
 
-  if (!adProofData) {
+  if (!adProofData || !currentVersion) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -62,8 +74,8 @@ const ProofView = () => {
     );
   }
 
-  const { adProof, version } = adProofData;
-  const adData = version.ad_data as any;
+  const { adProof, versions } = adProofData;
+  const adData = currentVersion.ad_data as any;
   const campaign = adProof.campaigns as any;
   const client = campaign?.clients;
 
@@ -159,9 +171,32 @@ const ProofView = () => {
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold">{client?.name} - {campaign?.name}</h2>
-          <p className="text-sm text-muted-foreground">Version {adProof.current_version}</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">{client?.name} - {campaign?.name}</h2>
+            <p className="text-sm text-muted-foreground">
+              Version {selectedVersion} {selectedVersion === adProof.current_version && "(Current)"}
+            </p>
+          </div>
+          
+          {versions && versions.length > 1 && (
+            <Select
+              value={selectedVersion?.toString()}
+              onValueChange={(value) => setSelectedVersion(parseInt(value))}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select version" />
+              </SelectTrigger>
+              <SelectContent>
+                {versions.map((v) => (
+                  <SelectItem key={v.id} value={v.version_number.toString()}>
+                    Version {v.version_number}
+                    {v.version_number === adProof.current_version && " (Current)"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
@@ -189,10 +224,6 @@ const ProofView = () => {
                 <div className="space-y-2">
                   <Label htmlFor="name">Your Name *</Label>
                   <Input id="name" placeholder="Enter your name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email (optional)</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="comment">Comment *</Label>
