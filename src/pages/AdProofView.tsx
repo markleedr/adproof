@@ -15,8 +15,11 @@ import { ShareAdProofDialog } from "@/components/ShareAdProofDialog";
 
 // Previews
 import { FacebookSingleImagePreview } from "@/components/ad-previews/FacebookSingleImagePreview";
+import { FacebookCarouselPreview } from "@/components/ad-previews/FacebookCarouselPreview";
 import { LinkedInSingleImagePreview } from "@/components/ad-previews/LinkedInSingleImagePreview";
+import { LinkedInCarouselPreview } from "@/components/ad-previews/LinkedInCarouselPreview";
 import { InstagramSingleImagePreview } from "@/components/ad-previews/InstagramSingleImagePreview";
+import { InstagramCarouselPreview } from "@/components/ad-previews/InstagramCarouselPreview";
 import { InstagramStoryPreview } from "@/components/ad-previews/InstagramStoryPreview";
 import { FacebookStoryPreview } from "@/components/ad-previews/FacebookStoryPreview";
 
@@ -205,10 +208,13 @@ const AdProofView = () => {
     const format: string = adProof.ad_format;
 
     if (platform === "facebook" && format === "single-image") return FacebookSingleImagePreview as any;
+    if (platform === "facebook" && format === "carousel") return FacebookCarouselPreview as any;
     if (platform === "facebook" && format === "story") return FacebookStoryPreview as any;
     if (platform === "instagram" && format === "single-image") return InstagramSingleImagePreview as any;
+    if (platform === "instagram" && format === "carousel") return InstagramCarouselPreview as any;
     if (platform === "instagram" && format === "story") return InstagramStoryPreview as any;
     if (platform === "linkedin" && format === "single-image") return LinkedInSingleImagePreview as any;
+    if (platform === "linkedin" && format === "carousel") return LinkedInCarouselPreview as any;
 
     return null;
   }, [adProof]);
